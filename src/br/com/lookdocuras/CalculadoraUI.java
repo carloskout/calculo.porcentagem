@@ -23,9 +23,14 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
 import javax.swing.JSeparator;
+import javax.swing.border.TitledBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.SwingConstants;
 
-public class PercentDiff extends JFrame {
+public class CalculadoraUI extends JFrame {
 
+	private static final long serialVersionUID = 1L;
+	
 	private JPanel contentPane;
 	private JTextField jtfCurrentValue;
 	private JTextField jtfNewValue;
@@ -34,6 +39,7 @@ public class PercentDiff extends JFrame {
 	private JTextField jtfPercentNewValue;
 	private JButton btnClear;
 	DecimalFormat df = new DecimalFormat("###.##");
+	private JTextField jftDisplay;
 
 	/**
 	 * Launch the application.
@@ -42,7 +48,7 @@ public class PercentDiff extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					PercentDiff frame = new PercentDiff();
+					CalculadoraUI frame = new CalculadoraUI();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -58,11 +64,11 @@ public class PercentDiff extends JFrame {
 	 * @throws InstantiationException 
 	 * @throws ClassNotFoundException 
 	 */
-	public PercentDiff() throws Exception {
+	public CalculadoraUI() throws Exception {
 		setResizable(false);
 		setTitle("Calculo de porcentagem");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(338, 200);
+		setSize(360, 324);
 		setLocationRelativeTo(null);
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		contentPane = new JPanel();
@@ -71,72 +77,106 @@ public class PercentDiff extends JFrame {
 		contentPane.setLayout(null);
 		setContentPane(contentPane);
 		
+		JButton btnExit = new JButton("Sair");
+		btnExit.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
+		btnExit.setBounds(9, 249, 89, 23);
+		contentPane.add(btnExit);
+		
+		JLabel lblDev = new JLabel("Desenvolvido por Carlos Coutinho");
+		lblDev.setForeground(Color.GRAY);
+		lblDev.setFont(new Font("Arial", Font.PLAIN, 10));
+		lblDev.setBounds(168, 253, 167, 14);
+		contentPane.add(lblDev);
+		
+		JPanel panelPercent = new JPanel();
+		panelPercent.setBorder(new TitledBorder(null, "C\u00E1lculo de Porcentagem", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panelPercent.setBounds(9, 20, 326, 121);
+		contentPane.add(panelPercent);
+		panelPercent.setLayout(null);
+		
 		JLabel lblCurrentValue = new JLabel("Valor Atual");
+		lblCurrentValue.setBounds(12, 26, 66, 14);
+		panelPercent.add(lblCurrentValue);
 		lblCurrentValue.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblCurrentValue.setBounds(10, 11, 66, 14);
-		contentPane.add(lblCurrentValue);
 		
 		jtfCurrentValue = new JTextField();
+		jtfCurrentValue.setBounds(12, 40, 84, 33);
+		panelPercent.add(jtfCurrentValue);
 		jtfCurrentValue.setFont(new Font("Arial", Font.PLAIN, 20));
-		jtfCurrentValue.setBounds(10, 25, 84, 33);
-		contentPane.add(jtfCurrentValue);
 		jtfCurrentValue.setColumns(10);
 		
-		jtfCurrentValue.addKeyListener(new CurrentValueTextField());
-		
 		JLabel lblNewValue = new JLabel("Novo Valor");
+		lblNewValue.setBounds(120, 26, 66, 14);
+		panelPercent.add(lblNewValue);
 		lblNewValue.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblNewValue.setBounds(118, 11, 66, 14);
-		contentPane.add(lblNewValue);
 		
 		jtfNewValue = new JTextField();
+		jtfNewValue.setBounds(120, 40, 84, 33);
+		panelPercent.add(jtfNewValue);
 		jtfNewValue.setFont(new Font("Arial", Font.PLAIN, 20));
 		jtfNewValue.setColumns(10);
-		jtfNewValue.setBounds(118, 25, 84, 33);
-		contentPane.add(jtfNewValue);
-		jtfNewValue.addKeyListener(new NewValueTextField());
 		
 		
 		JLabel lblResult = new JLabel("Diferença");
+		lblResult.setBounds(230, 26, 66, 14);
+		panelPercent.add(lblResult);
 		lblResult.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblResult.setBounds(228, 11, 66, 14);
-		contentPane.add(lblResult);
 		
 		jtfResult = new JTextField();
+		jtfResult.setBounds(230, 40, 84, 33);
+		panelPercent.add(jtfResult);
 		jtfResult.setEnabled(false);
 		jtfResult.setFont(new Font("Arial", Font.PLAIN, 20));
 		jtfResult.setColumns(10);
-		jtfResult.setBounds(228, 25, 84, 33);
-		contentPane.add(jtfResult);
-		
-		jtfPercentCurrentValue = new JTextField();
-		jtfPercentCurrentValue.setBounds(61, 63, 33, 16);
-		contentPane.add(jtfPercentCurrentValue);
-		jtfPercentCurrentValue.setColumns(10);
-		jtfPercentCurrentValue.addKeyListener(new CalcPercentActualField());
 		
 		JLabel lblPercent1 = new JLabel("%");
+		lblPercent1.setBounds(52, 84, 11, 14);
+		panelPercent.add(lblPercent1);
 		lblPercent1.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblPercent1.setBounds(50, 63, 11, 14);
-		contentPane.add(lblPercent1);
+		
+		jtfPercentCurrentValue = new JTextField();
+		jtfPercentCurrentValue.setBounds(63, 78, 33, 23);
+		panelPercent.add(jtfPercentCurrentValue);
+		jtfPercentCurrentValue.setFont(new Font("Arial", Font.PLAIN, 13));
+		jtfPercentCurrentValue.setColumns(10);
 		
 		JLabel lblPercent2 = new JLabel("%");
+		lblPercent2.setBounds(160, 84, 11, 14);
+		panelPercent.add(lblPercent2);
 		lblPercent2.setFont(new Font("Arial", Font.PLAIN, 12));
-		lblPercent2.setBounds(158, 63, 11, 14);
-		contentPane.add(lblPercent2);
 		
 		jtfPercentNewValue = new JTextField();
+		jtfPercentNewValue.setBounds(171, 78, 33, 23);
+		panelPercent.add(jtfPercentNewValue);
+		jtfPercentNewValue.setFont(new Font("Arial", Font.PLAIN, 13));
 		jtfPercentNewValue.setColumns(10);
-		jtfPercentNewValue.setBounds(169, 63, 33, 16);
-		contentPane.add(jtfPercentNewValue);
-		jtfPercentNewValue.addKeyListener(new CalcPercentActualField());
-		
-		JSeparator separator = new JSeparator();
-		separator.setBounds(10, 90, 302, 1);
-		contentPane.add(separator);
 		
 		btnClear = new JButton("Limpar");
-		btnClear.setBounds(223, 110, 89, 23);
+		btnClear.setBounds(230, 78, 83, 23);
+		panelPercent.add(btnClear);
+		
+		JPanel panelCalc = new JPanel();
+		panelCalc.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, new Color(255, 255, 255), new Color(160, 160, 160)), "Calculadora", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		panelCalc.setBounds(9, 154, 326, 84);
+		contentPane.add(panelCalc);
+		panelCalc.setLayout(null);
+		
+		jftDisplay = new JTextField();
+		jftDisplay.setFont(new Font("Arial", Font.PLAIN, 20));
+		jftDisplay.setBounds(10, 32, 302, 33);
+		panelCalc.add(jftDisplay);
+		jftDisplay.setColumns(10);
+		
+		JLabel lblOutput = new JLabel("5 + 5 = 10");
+		lblOutput.setFont(new Font("Arial", Font.BOLD, 12));
+		lblOutput.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblOutput.setBounds(10, 14, 302, 14);
+		panelCalc.add(lblOutput);
 		btnClear.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -148,23 +188,11 @@ public class PercentDiff extends JFrame {
 				jtfPercentNewValue.setText("");
 			}
 		});
-		contentPane.add(btnClear);
+		jtfPercentNewValue.addKeyListener(new CalcPercentActualField());
+		jtfPercentCurrentValue.addKeyListener(new CalcPercentActualField());
+		jtfNewValue.addKeyListener(new NewValueTextField());
 		
-		JButton btnExit = new JButton("Sair");
-		btnExit.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
-			}
-		});
-		btnExit.setBounds(10, 110, 89, 23);
-		contentPane.add(btnExit);
-		
-		JLabel lblDev = new JLabel("Desenvolvido por Carlos Coutinho");
-		lblDev.setForeground(Color.GRAY);
-		lblDev.setFont(new Font("Arial", Font.PLAIN, 10));
-		lblDev.setBounds(77, 144, 167, 14);
-		contentPane.add(lblDev);
+		jtfCurrentValue.addKeyListener(new CurrentValueTextField());
 		
 	}
 	
@@ -188,6 +216,7 @@ public class PercentDiff extends JFrame {
 		btnClear.requestFocus();
 	}
 	
+	//calculo de porcentagem positiva 5 + 20%
 	private void calcPercent(KeyEvent e) {
 		JTextField output = null;
 		JTextField source = (JTextField) e.getSource();
