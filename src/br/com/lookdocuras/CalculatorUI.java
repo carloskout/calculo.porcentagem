@@ -333,32 +333,47 @@ public class CalculatorUI extends JFrame {
 		}
 
 		private void processInput(KeyEvent e) {
-			if(e.getKeyCode() == 27) { //esc
+			if (e.getKeyCode() == 27) { // esc
 				display = "";
 				operation = null;
 				updateDisplay(display);
-			} else if(isValid()) {
-					if(isNumber()) {
+				return;
+			}
+
+			if (state == State.INFINITY) {
+
+				if (isValid()) {
+					if (isNumber()) {
 						display += key;
 						updateDisplay(display);
 					} else {
-						
-						if(x > 0 && operation != null) {
+
+						if (x > 0 && operation != null) {
 							display = String.valueOf(operation.calc(x, toDouble(display)));
 							updateDisplay(display);
-							
-							if(key.equals("=")) {
-								display = "";
+
+							if (key.equals("=")) {
+								state = State.CALCULATED;
+								//display = "";
 								operation = null;
 							} else {
 								prepareExpr();
 							}
 						} else {
-							if(!display.isEmpty()) {
+							if (!display.isEmpty()) {
 								prepareExpr();
 							}
 						}
 					}
+				}
+			} else if(state == State.CALCULATED){
+				if(isNumber()) {
+					display = key;
+					updateDisplay(display);
+				} else if(!key.equals("=")) {
+					prepareExpr();
+				}
+				state = State.INFINITY;
 			}
 		}
 
