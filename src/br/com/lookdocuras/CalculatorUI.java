@@ -53,7 +53,8 @@ public class CalculatorUI extends JFrame {
 	private Operation operation;
 	private State state;
 
-	private final Pattern inputIsValid = Pattern.compile("[0-9]|[\\-+*/%=]");
+	// 10 representa a tecla ENTER
+	private final Pattern inputIsValid = Pattern.compile("enter|[0-9]|[\\-+*/%=]");
 	private final Pattern isNumber = Pattern.compile("[0-9]");
 	private final Pattern isOperator = Pattern.compile("[\\-+*/%=]");
 
@@ -323,12 +324,14 @@ public class CalculatorUI extends JFrame {
 		private String key = null;
 		private String display = "";
 		private double x = 0;
-		private double y = 0;
 
 		@Override
 		public void keyReleased(KeyEvent e) {
 			super.keyReleased(e);
-			key = String.valueOf(e.getKeyChar());
+			if(e.getKeyCode() == KeyEvent.VK_ENTER)
+				key = "enter";
+			else
+				key = String.valueOf(e.getKeyChar());
 			processInput(e);
 		}
 
@@ -347,14 +350,12 @@ public class CalculatorUI extends JFrame {
 						display += key;
 						updateDisplay(display);
 					} else {
-
 						if (x > 0 && operation != null) {
 							display = String.valueOf(operation.calc(x, toDouble(display)));
 							updateDisplay(display);
 
-							if (key.equals("=")) {
+							if (key.equals("=") || key.equals("enter")) {
 								state = State.CALCULATED;
-								//display = "";
 								operation = null;
 							} else {
 								prepareExpr();
@@ -370,7 +371,7 @@ public class CalculatorUI extends JFrame {
 				if(isNumber()) {
 					display = key;
 					updateDisplay(display);
-				} else if(!key.equals("=")) {
+				} else if(!key.equals("=") || !(key.equals("enter"))) {
 					prepareExpr();
 				}
 				state = State.INFINITY;
@@ -399,6 +400,8 @@ public class CalculatorUI extends JFrame {
 			case "/":
 				op = new Div();
 				break;
+			default:
+				op = null;
 			}
 			return op;
 		}
