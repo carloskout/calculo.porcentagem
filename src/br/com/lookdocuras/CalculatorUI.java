@@ -20,6 +20,10 @@ import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.text.DecimalFormat;
@@ -36,6 +40,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.SwingConstants;
 import java.awt.Cursor;
+import java.awt.SystemColor;
 
 public class CalculatorUI extends JFrame {
 
@@ -48,13 +53,14 @@ public class CalculatorUI extends JFrame {
 	private JTextField jtfPercentCurrentValue;
 	private JTextField jtfPercentNewValue;
 	private JButton btnClear;
-	DecimalFormat df = new DecimalFormat("###.##");
+	private JLabel lblHistory;
+	private DecimalFormat df = new DecimalFormat("###.##");
 	private JTextField jftDisplay;
 	private Operation operation;
 	private State state;
 
 	// 10 representa a tecla ENTER
-	private final Pattern inputIsValid = Pattern.compile("enter|[0-9]|[\\-+*/%=]");
+	private final Pattern inputIsValid = Pattern.compile("enter|[0-9]|[\\-+*/%=,]");
 	private final Pattern isNumber = Pattern.compile("[0-9]");
 	private final Pattern isOperator = Pattern.compile("[\\-+*/%=]");
 
@@ -86,7 +92,7 @@ public class CalculatorUI extends JFrame {
 		setResizable(false);
 		setTitle("Calculo de porcentagem");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(360, 409);
+		setSize(360, 410);
 		setLocationRelativeTo(null);
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		contentPane = new JPanel();
@@ -104,13 +110,13 @@ public class CalculatorUI extends JFrame {
 				System.exit(0);
 			}
 		});
-		btnExit.setBounds(9, 325, 89, 23);
+		btnExit.setBounds(9, 328, 89, 23);
 		contentPane.add(btnExit);
 
 		JLabel lblDev = new JLabel("Desenvolvido por Carlos Coutinho");
 		lblDev.setForeground(Color.GRAY);
 		lblDev.setFont(new Font("Arial", Font.PLAIN, 10));
-		lblDev.setBounds(168, 329, 167, 14);
+		lblDev.setBounds(168, 332, 167, 14);
 		contentPane.add(lblDev);
 
 		JPanel panelPercent = new JPanel();
@@ -184,25 +190,49 @@ public class CalculatorUI extends JFrame {
 		panelCalc.setBorder(new TitledBorder(
 				new EtchedBorder(EtchedBorder.LOWERED, new Color(255, 255, 255), new Color(160, 160, 160)),
 				"Calculadora", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panelCalc.setBounds(9, 154, 326, 137);
+		panelCalc.setBounds(9, 154, 326, 150);
 		contentPane.add(panelCalc);
 		panelCalc.setLayout(null);
 
 		jftDisplay = new JTextField();
-		jftDisplay.setBackground(Color.WHITE);
+		jftDisplay.setBackground(SystemColor.info);
+		jftDisplay.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		jftDisplay.setForeground(Color.BLACK);
+		//jftDisplay.setBackground(Color.WHITE);
 		jftDisplay.setHorizontalAlignment(SwingConstants.RIGHT);
-		jftDisplay.setFont(new Font("Arial", Font.PLAIN, 50));
+		jftDisplay.setFont(new Font("Dialog", Font.PLAIN, 50));
 		jftDisplay.setEditable(false);
 		jftDisplay.setBounds(10, 32, 302, 78);
 		jftDisplay.addKeyListener(new DisplayKeyListener());
 		panelCalc.add(jftDisplay);
 		jftDisplay.setColumns(10);
+		
+		jftDisplay.addFocusListener(new FocusListener() {
 
-		JLabel lblOutput = new JLabel("5 + 5 = 10");
-		lblOutput.setFont(new Font("Arial", Font.BOLD, 12));
-		lblOutput.setHorizontalAlignment(SwingConstants.RIGHT);
-		lblOutput.setBounds(10, 14, 302, 14);
-		panelCalc.add(lblOutput);
+			@Override
+			public void focusGained(FocusEvent e) {
+				jftDisplay.setBackground(Color.WHITE);
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				jftDisplay.setBackground(SystemColor.info);
+			}
+			
+		});
+
+		lblHistory = new JLabel();
+		lblHistory.setFont(new Font("Dialog", Font.PLAIN, 12));
+		lblHistory.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblHistory.setBounds(10, 14, 302, 14);
+		panelCalc.add(lblHistory);
+		
+		JLabel lblNewLabel = new JLabel("[Esc] - Limpar");
+		lblNewLabel.setFont(new Font("Arial", Font.PLAIN, 11));
+		lblNewLabel.setBounds(10, 125, 92, 14);
+		panelCalc.add(lblNewLabel);
+		
+		
 		btnClear.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -332,6 +362,7 @@ public class CalculatorUI extends JFrame {
 				key = "enter";
 			else
 				key = String.valueOf(e.getKeyChar());
+		
 			processInput(e);
 		}
 
@@ -340,21 +371,38 @@ public class CalculatorUI extends JFrame {
 				display = "";
 				operation = null;
 				x = 0;
+				lblHistory.setText("");
 				updateDisplay(display);
 				return;
 			}
-
+			
+			if(e.getKeyCode() == 8) { // apagar [backspace]
+				if(!display.isEmpty()) {
+					display = (display.length() - 1) == 0 ? "" : display.substring(0, display.length() - 1);
+					updateDisplay(display);
+					lblHistory.setText("");
+				}
+				return;
+			}
+				
 			if (state == State.INFINITY) {
 
 				if (isValid()) {
-					if (isNumber()) {
+					if ((key.equals(",") && 
+							!((JTextField) e.getSource()).getText().isEmpty())
+							&& state == State.INFINITY) {
+						display += ",";
+						updateDisplay(display);
+					} else if (isNumber()) {
 						display += key;
 						updateDisplay(display);
 					} else {
 						if (x > 0 && operation != null) {
-							display = df.format(operation.calc(x, toDouble(display)));
+							String rightOperand = display.replace(",", ".");
+							display = df.format(operation.calc(x, toDouble(rightOperand)));
 							updateDisplay(display);
-
+							
+							lblHistory.setText(lblHistory.getText() + " " + rightOperand + " = " + display);
 							if (key.equals("=") || key.equals("enter")) {
 								state = State.CALCULATED;
 								operation = null;
@@ -372,6 +420,7 @@ public class CalculatorUI extends JFrame {
 				if(isNumber()) {
 					display = key;
 					updateDisplay(display);
+					lblHistory.setText("");
 				} else if(!key.equals("=") || !(key.equals("enter"))) {
 					prepareExpr();
 				}
@@ -380,7 +429,8 @@ public class CalculatorUI extends JFrame {
 		}
 
 		private void prepareExpr() {
-			x = Double.parseDouble(display);
+			x = Double.parseDouble(display.replace(",", "."));
+			lblHistory.setText(display + " " + key);
 			display = "";
 			operation = getOperation();
 		}
@@ -428,5 +478,4 @@ public class CalculatorUI extends JFrame {
 		}
 
 	}
-
 }
