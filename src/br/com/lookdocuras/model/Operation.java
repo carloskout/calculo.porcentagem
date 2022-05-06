@@ -11,4 +11,5 @@ public interface Operation {
 
 	public double calc(double x, double y);
 	public int getType();
+	
 }

@@ -339,6 +339,7 @@ public class CalculatorUI extends JFrame {
 			if (e.getKeyCode() == 27) { // esc
 				display = "";
 				operation = null;
+				x = 0;
 				updateDisplay(display);
 				return;
 			}
@@ -351,7 +352,7 @@ public class CalculatorUI extends JFrame {
 						updateDisplay(display);
 					} else {
 						if (x > 0 && operation != null) {
-							display = String.valueOf(operation.calc(x, toDouble(display)));
+							display = df.format(operation.calc(x, toDouble(display)));
 							updateDisplay(display);
 
 							if (key.equals("=") || key.equals("enter")) {
